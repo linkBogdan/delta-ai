@@ -1,13 +1,42 @@
+import os
+import sys
 from llama_cpp import Llama
 
+#---------------------------------------------
+# Suppress output context manager
+#---------------------------------------------
+class SupressOutput:
+    def __enter__(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stderr.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
+
+#---------------------------------------------
+# Configuration
+#---------------------------------------------
 MODEL_PATH = "/home/bogdan/delta/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 SYSTEM_PROMPT = open("system_prompt.txt").read().strip()
 
-llm = Llama(
-    model_path=MODEL_PATH,
-    n_ctx=4096,
-    verbose=False
-)
+#---------------------------------------------
+# Initialize LLM
+#---------------------------------------------
+with SupressOutput():
+    llm = Llama(
+        model_path=MODEL_PATH,
+        n_ctx=4096,
+        verbose=False
+    )
+    
+#---------------------------------------------
+# Chat Loop
+#---------------------------------------------
 
 conversation = SYSTEM_PROMPT + "\n"
 
@@ -36,6 +65,5 @@ while True:
     print(f"AI: {reply}")
     conversation += reply
 
-    # prevent unbounded context growth
     if len(conversation) > 8000:
         conversation = SYSTEM_PROMPT + conversation[-4000:]
