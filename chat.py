@@ -24,22 +24,29 @@ class SuppressOutput:
 # Language detection
 # -------------------------------
 def detect_language(text: str) -> str:
-    romanian_chars = "ăâîșț"
-    romanian_keywords = {
-        "este", "sunt", "ce", "cum", "unde", "de", "vreau",
-        "pot", "și", "în", "nu", "da", "hai", "doar", "vorbim"
-    }
+    t = text.lower().strip()
 
-    t = text.lower()
+    # Strong Romanian signals
+    romanian_chars = "ăâîșț"
+    romanian_words = {
+        "ba", "da", "nu", "hai", "vorbeste", "romana",
+        "ce", "cum", "unde", "de", "pot", "poti",
+        "sunt", "este", "am", "ai", "face", "faci"
+    }
 
     if any(c in t for c in romanian_chars):
         return "ro"
 
     words = set(t.split())
-    if words & romanian_keywords:
+    if words & romanian_words:
+        return "ro"
+
+    # Short utterances default to Romanian if ambiguous
+    if len(words) <= 3:
         return "ro"
 
     return "en"
+
 
 
 def is_short_romanian(text: str) -> bool:
