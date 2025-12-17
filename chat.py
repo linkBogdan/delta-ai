@@ -2,10 +2,10 @@ import os
 import sys
 from llama_cpp import Llama
 
-#---------------------------------------------
+# ---------------------------------------------
 # Suppress output context manager
-#---------------------------------------------
-class SupressOutput:
+# ---------------------------------------------
+class SuppressOutput:
     def __enter__(self):
         self._stdout = sys.stdout
         self._stderr = sys.stderr
@@ -18,52 +18,49 @@ class SupressOutput:
         sys.stdout = self._stdout
         sys.stderr = self._stderr
 
-#---------------------------------------------
+# ---------------------------------------------
 # Configuration
-#---------------------------------------------
+# ---------------------------------------------
 MODEL_PATH = "/home/bogdan/delta/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"
-SYSTEM_PROMPT = open("system_prompt.txt").read().strip()
 
-#---------------------------------------------
+with open("system_prompt.txt", "r", encoding="utf-8") as f:
+    SYSTEM_PROMPT = f.read().strip()
+
+# ---------------------------------------------
 # Initialize LLM
-#---------------------------------------------
-with SupressOutput():
+# ---------------------------------------------
+with SuppressOutput():
     llm = Llama(
         model_path=MODEL_PATH,
         n_ctx=4096,
         verbose=False
     )
-    
-#---------------------------------------------
-# Chat Loop
-#---------------------------------------------
 
-conversation = SYSTEM_PROMPT + "\n"
+# ---------------------------------------------
+# Chat Loop 
+# ---------------------------------------------
+conversation = f"[INST] {SYSTEM_PROMPT} [/INST]\n"
 
-print("AI: Delta here!")
+print("AI: Delta aici.")
 
 while True:
     user = input("You: ").strip()
     if user.lower() in ("exit", "quit"):
-        print("AI: Talk later.")
+        print("AI: Vorbim mai târziu.")
         break
 
-    conversation += f"\nUser: {user}\nAI:"
+    conversation += f"[INST] {user} [/INST]"
 
     output = llm(
         prompt=conversation,
         max_tokens=200,
-        temperature=0.7,
+        temperature=0.6,
         top_p=0.9,
         repeat_penalty=1.1,
-        stop=["\nUser:"]
+        stop=["[/INST]"]
     )
 
     reply = output["choices"][0]["text"].strip()
-    reply = reply.split("\nUser:")[0].strip()
-
     print(f"AI: {reply}")
-    conversation += reply
 
-    if len(conversation) > 8000:
-        conversation = SYSTEM_PROMPT + conversation[-4000:]
+    conversation += reply
