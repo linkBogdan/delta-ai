@@ -2,7 +2,6 @@ import sys
 import os
 from llama_cpp import Llama
 
-
 # -------------------------------
 # Silent stdout/stderr context
 # -------------------------------
@@ -25,15 +24,14 @@ class SuppressOutput:
 # -------------------------------
 def detect_language(text: str) -> str:
     t = text.lower().strip()
-
-    # Strong Romanian signals
     romanian_chars = "ăâîșț"
     romanian_words = {
         "ba", "da", "nu", "hai", "vorbeste", "romana",
-        "ce", "cum", "unde", "de", "pot", "poti",
-        "sunt", "este", "am", "ai", "face", "faci"
+        "ce", "cum", "unde", "de", "vreau", "pot", "poti",
+        "sunt", "este", "am", "ai", "face", "faci", "tare", "misto"
     }
 
+    # Diacritics
     if any(c in t for c in romanian_chars):
         return "ro"
 
@@ -41,16 +39,11 @@ def detect_language(text: str) -> str:
     if words & romanian_words:
         return "ro"
 
-    # Short utterances default to Romanian if ambiguous
+    # Short messages default to Romanian
     if len(words) <= 3:
         return "ro"
 
     return "en"
-
-
-
-def is_short_romanian(text: str) -> bool:
-    return len(text.strip().split()) <= 3 and detect_language(text) == "ro"
 
 
 # -------------------------------
@@ -72,48 +65,62 @@ with SuppressOutput():
 
 
 # -------------------------------
-# Chat loop
+# Conversation memory
 # -------------------------------
-conversation = SYSTEM_PROMPT + "\n"
+conversation = [
+    {"role": "system", "content": SYSTEM_PROMPT}
+]
 
 print("AI: Delta here!")
 
+# -------------------------------
+# Chat loop
+# -------------------------------
 while True:
-    user = input("You: ").strip()
-    if user.lower() in ("exit", "quit"):
+    user_text = input("You: ").strip()
+    if user_text.lower() in ("exit", "quit"):
         print("AI: Talk later.")
         break
 
-    lang = detect_language(user)
+    lang = detect_language(user_text)
+    conversation.append({"role": "user", "content": user_text})
 
-    # Guard against guessing short Romanian slang
-    if is_short_romanian(user):
-        conversation += (
-            "\n[Note: Short Romanian phrase. "
-            "If meaning is unclear or slang, ask for clarification instead of guessing.]\n"
-        )
+    # Lower temperature for Romanian to reduce creative errors
+    temp = 0.5 if lang == "ro" else 0.7
 
-    conversation += (
-        f"\n[User language: {lang}]\n"
-        f"User: {user}\n"
-        f"AI:"
-    )
+    # Build prompt per turn
+    prompt_text = ""
+    for msg in conversation:
+        if msg["role"] == "system":
+            prompt_text += msg["content"] + "\n"
+        elif msg["role"] == "user":
+            prompt_text += f"User: {msg['content']}\n"
+        else:  # assistant
+            prompt_text += f"AI: {msg['content']}\n"
+
+    # Per-turn reminder for friendly casual style
+    prompt_text += (
+    "[Reminder: Respond casually and friendly, in the same language as user. "
+    "Keep responses short and concise (1–2 sentences max). "
+    "Do not invent translations or facts. If unsure, ask or admit uncertainty.]\nAI:"
+)
+
 
     output = llm(
-        prompt=conversation,
+        prompt=prompt_text,
         max_tokens=200,
-        temperature=0.7,
+        temperature=temp,
         top_p=0.9,
         repeat_penalty=1.1,
-        stop=["\nUser:"]
+        stop=["\nUser:", "\n[", "\nNote:"]
     )
 
     reply = output["choices"][0]["text"].strip()
     reply = reply.split("\nUser:")[0].strip()
-
     print(f"AI: {reply}")
-    conversation += reply
 
-    # Prevent unbounded context growth
-    if len(conversation) > 8000:
-        conversation = SYSTEM_PROMPT + conversation[-4000:]
+    conversation.append({"role": "assistant", "content": reply})
+
+    # Trim conversation to last 10 turns plus system prompt to avoid context overflow
+    if len(prompt_text) > 8000:
+        conversation = [conversation[0]] + conversation[-10:]
