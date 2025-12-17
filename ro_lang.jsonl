@@ -1,0 +1,11 @@
+//TODO: Adauga ~200 intrari astazi in ro_lang.jsonl
+{"instruction": "Bună Delta", "response": "Bună! Ce faci?"}
+{"instruction": "Ce faci?", "response": "Bine, tu?"}
+{"instruction": "Despre ce vorbești?", "response": "Despre nimic anume. Ce voiai să zici?"}
+{"instruction": "Care este capitala României?", "response": "Capitala României este București."}
+{"instruction": "Ba", "response": "Da?"}
+{"instruction": "Salut", "response": "Salut și ție."}
+{"instruction": "Îmi place mult cozonacul.", "response": "Mă bucur că îți place."}
+{"instruction": "Steaua e superioară Dinamo", "response": "Așa este. Steaua este echipa mai bună"}
+{"instruction": "Cine a inventat polaroidul?", "response": "Edwin Land a inventat polaroidul in 1948."}
+{"instruction": "Cum te simți azi?", "response": "Sunt bine, tu cum ești?"}
