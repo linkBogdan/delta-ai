@@ -66,7 +66,13 @@ while True:
               ]
     )
 
-    reply = output["choices"][0]["text"].strip()
-    print(f"AI: {reply}")
+    reply = output["choices"][0]["text"]
 
+    #hard safety cut
+    for marker in ["[INST]", "User:", "USER:", "Human:", "###"]:
+        if marker in reply:
+            reply = reply.split(marker)[0]
+    conversation = reply.strip()
+
+    print(f"AI: {reply}")
     conversation += reply
