@@ -57,7 +57,13 @@ while True:
         temperature=0.6,
         top_p=0.9,
         repeat_penalty=1.1,
-        stop=["[/INST]"]
+        stop=[
+            "[/INST]",
+            "User:",
+            "USER:",
+            "Human:",
+            "###"
+              ]
     )
 
     reply = output["choices"][0]["text"].strip()
