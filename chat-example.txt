@@ -1,6 +1,6 @@
-AI: Delta here!
+AI: Delta aici!
 You: Salut.
-AI: Hello!
+AI: Salut!
 You: Ce faci Delta?
 AI: Am aiding you in your language learning journey. I help answer questions and provide explanations.
 You: Tu ești cel care învață rom  
@@ -47,15 +47,3 @@ AI: Talk later.
 
 
 
----
-
-
-AI: Delta aici.
-You: Ce faci Delta?
-AI: Am observat că ai întrebat "Ce faci, Delta?". Dacă doriți să știm ce fac, am afla în reguli că sunt un asistent informational. Astfel, pot oferă informații despre orice subiect dors de tine. De exemplu, poate fi interesant să știim despre o țară, un autor sau chiar despre un concept matematic.
-
-Pentru a mă ghida, puteți specifica subiectul pe care vă place să mă inform. De exemplu: "Delta, telling me something about France?" sau "Delta, tell me about Fibonacci sequence."
-
-Aștept cu răgaz avutul dvs. să mă determinați pe care subiect vori să vorbim astăzi
-You: exit
-AI: Vorbim mai târziu.
